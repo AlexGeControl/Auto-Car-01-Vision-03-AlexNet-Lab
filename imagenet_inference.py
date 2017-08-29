@@ -18,7 +18,7 @@ init = tf.global_variables_initializer()
 sess = tf.Session()
 sess.run(init)
 
-# Read Images
+# Read Images--per-image standardization is applied
 im1 = (imread("poodle.png")[:, :, :3]).astype(np.float32)
 im1 = im1 - np.mean(im1)
 

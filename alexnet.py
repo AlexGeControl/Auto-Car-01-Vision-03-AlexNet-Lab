@@ -3,7 +3,6 @@ import tensorflow as tf
 
 net_data = np.load("bvlc-alexnet.npy", encoding="latin1").item()
 
-
 def conv(input, kernel, biases, k_h, k_w, c_o, s_h, s_w,  padding="VALID", group=1):
     '''
     From https://github.com/ethereon/caffe-tensorflow
@@ -38,6 +37,7 @@ def AlexNet(features, feature_extract=False):
     """
     # conv1
     # conv(11, 11, 96, 4, 4, padding='VALID', name='conv1')
+    # conv layer 1 -- kernel_size = (11, 11), stride = (4, 4), depth = 96, activation = ReLU
     k_h = 11
     k_w = 11
     c_o = 96
@@ -50,6 +50,7 @@ def AlexNet(features, feature_extract=False):
 
     # lrn1
     # lrn(2, 2e-05, 0.75, name='norm1')
+    # local response normalization 1
     radius = 2
     alpha = 2e-05
     beta = 0.75
@@ -58,6 +59,7 @@ def AlexNet(features, feature_extract=False):
 
     # maxpool1
     # max_pool(3, 3, 2, 2, padding='VALID', name='pool1')
+    # max pooling 1 -- kernel size = (3, 3), stride = (2, 2)
     k_h = 3
     k_w = 3
     s_h = 2
@@ -67,6 +69,7 @@ def AlexNet(features, feature_extract=False):
 
     # conv2
     # conv(5, 5, 256, 1, 1, group=2, name='conv2')
+    # conv layer 2 -- kernel_size = (5, 5), stride = (1, 1), depth = 256, activation = ReLu
     k_h = 5
     k_w = 5
     c_o = 256
@@ -80,6 +83,7 @@ def AlexNet(features, feature_extract=False):
 
     # lrn2
     # lrn(2, 2e-05, 0.75, name='norm2')
+    # local response normalization 2
     radius = 2
     alpha = 2e-05
     beta = 0.75
@@ -88,6 +92,7 @@ def AlexNet(features, feature_extract=False):
 
     # maxpool2
     # max_pool(3, 3, 2, 2, padding='VALID', name='pool2')
+    # max pooling 2 -- kernel size = (3, 3), stride = (2, 2)
     k_h = 3
     k_w = 3
     s_h = 2
@@ -97,6 +102,7 @@ def AlexNet(features, feature_extract=False):
 
     # conv3
     # conv(3, 3, 384, 1, 1, name='conv3')
+    # conv layer 3 -- kernel_size = (3, 3), stride = (1, 1), depth = 384, activation = ReLU
     k_h = 3
     k_w = 3
     c_o = 384
@@ -110,6 +116,7 @@ def AlexNet(features, feature_extract=False):
 
     # conv4
     # conv(3, 3, 384, 1, 1, group=2, name='conv4')
+    # conv layer 4 -- kernel_size = (3, 3), stride = (1, 1), depth = 384, activation = ReLU
     k_h = 3
     k_w = 3
     c_o = 384
@@ -123,6 +130,7 @@ def AlexNet(features, feature_extract=False):
 
     # conv5
     # conv(3, 3, 256, 1, 1, group=2, name='conv5')
+    # conv layer 5 -- kernel_size = (3, 3), stride = (1, 1), depth = 256, activation = ReLU
     k_h = 3
     k_w = 3
     c_o = 256
@@ -136,6 +144,7 @@ def AlexNet(features, feature_extract=False):
 
     # maxpool5
     # max_pool(3, 3, 2, 2, padding='VALID', name='pool5')
+    # max pooling 3 -- kernel_size = (3, 3), stride = (2, 2)
     k_h = 3
     k_w = 3
     s_h = 2
@@ -144,12 +153,14 @@ def AlexNet(features, feature_extract=False):
     maxpool5 = tf.nn.max_pool(conv5, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding)
 
     # fc6, 4096
+    # fully connected 1 -- hidden units = 4096
     fc6W = tf.Variable(net_data["fc6"][0])
     fc6b = tf.Variable(net_data["fc6"][1])
     flat5 = tf.reshape(maxpool5, [-1, int(np.prod(maxpool5.get_shape()[1:]))])
     fc6 = tf.nn.relu(tf.matmul(flat5, fc6W) + fc6b)
 
     # fc7, 4096
+    # fully connected 2 -- hidden units = 4096
     fc7W = tf.Variable(net_data["fc7"][0])
     fc7b = tf.Variable(net_data["fc7"][1])
     fc7 = tf.nn.relu(tf.matmul(fc6, fc7W) + fc7b)
@@ -158,6 +169,7 @@ def AlexNet(features, feature_extract=False):
         return fc7
 
     # fc8, 1000
+    # output layer -- hidden units = 1000
     fc8W = tf.Variable(net_data["fc8"][0])
     fc8b = tf.Variable(net_data["fc8"][1])
 
